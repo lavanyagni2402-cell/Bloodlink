@@ -3,7 +3,6 @@
 A blood donor matching website. A family posts a blood request, BloodLink finds donors with a
 compatible blood group who are eligible to donate today, ranks them, and alerts everyone online.
 
-AIM3140 Web Technologies end-term project.
 
 Uses: HTML, CSS, Bootstrap, JavaScript, jQuery + AJAX, AngularJS, Python CGI (GET/POST),
 MySQL, MySQL Connector, JSON, Node.js and Django.
