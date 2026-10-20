@@ -4,9 +4,6 @@
 
 BloodLink is a blood donor matching web app. A family posts an urgent blood request; BloodLink finds donors whose blood group is compatible and who are medically eligible to donate today, ranks them, and alerts everyone online in real time.
 
-Built as the end-term project for **AIM3140 Web Technologies** at Manipal University Jaipur, using every topic in the course: HTML, CSS, Bootstrap, JavaScript, jQuery/AJAX, AngularJS, Node.js, Python CGI, MySQL, MySQL Connector, JSON and Django.
-
-
 ## Features
 
 - **Post a blood request** with blood group, units, hospital, city and urgency (critical / urgent / planned)
