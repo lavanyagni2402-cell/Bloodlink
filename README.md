@@ -6,9 +6,6 @@ BloodLink is a blood donor matching web app. A family posts an urgent blood requ
 
 Built as the end-term project for **AIM3140 Web Technologies** at Manipal University Jaipur, using every topic in the course: HTML, CSS, Bootstrap, JavaScript, jQuery/AJAX, AngularJS, Node.js, Python CGI, MySQL, MySQL Connector, JSON and Django.
 
-![BloodLink home page](docs/screenshots/home.png)
-
----
 
 ## Features
 
@@ -23,22 +20,6 @@ Built as the end-term project for **AIM3140 Web Technologies** at Manipal Univer
 - **Donor accounts and dashboard** with Django authentication (hashed passwords)
 - **Admin panel** to search, filter and verify donors
 - **Privacy**: phone numbers are never exposed in the public API
-
-## Screenshots
-
-| A donor pledges, and the family gets a live alert | The family sees pledges and best-matched donors |
-|---|---|
-| ![Pledging](docs/screenshots/pledge.png) | ![Owner view](docs/screenshots/request-owner.png) |
-
-| Open requests with live AJAX filters | Find donors (AngularJS) |
-|---|---|
-| ![Open requests](docs/screenshots/requests.png) | ![Find donors](docs/screenshots/find-donors.png) |
-
-| "Am I eligible?" (Python CGI) |
-|---|
-| ![CGI eligibility checker](docs/screenshots/cgi-eligibility.png) |
-
----
 
 ## Tech stack
 
@@ -203,22 +184,4 @@ python scripts/import_donors.py                                   # JSON → MyS
 - Output escaped in templates, jQuery (`.text()`) and CGI (`html.escape`)
 - Only the person who posted a request can change it (others get HTTP 403)
 
-> **Note:** the secret key and database password in `settings.py` are for local development only. Change them before deploying anywhere public.
-
-## Syllabus coverage (AIM3140)
-
-| Unit | Topics | Where |
-|---|---|---|
-| Web basics and page design | HTTP, HTML, lists, tables, images, links, forms | All templates; dashboard tables; navbar logo; footer external and email links |
-| Styling and client-side | CSS (inline, internal, external), JavaScript, DOM, Bootstrap | `style.css`, `main.js`, CGI page styles |
-| Backend with Python | CGI with GET/POST, MySQL CRUD | `cgi-bin/eligibility.py`, `sql/crud_demo.sql` |
-| Advanced Python web | MySQL Connector, JSON, jQuery AJAX, Node.js, AngularJS | `scripts/`, `requests.js`, `node-alerts/`, `finder.js` |
-| Django | MVT, models, views, templates, admin, ORM, URL routing | `core/` |
-
----
-
-## Author
-
-**Lavanya Agnihotri**
-B.Tech CSE (AI & ML), Manipal University Jaipur
-AIM3140 Web Technologies, end-term project
+> **Note:** the secret key and database password in `settings.py` are for local development only.
