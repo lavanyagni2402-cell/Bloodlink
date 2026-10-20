@@ -1,0 +1,67 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Find donors{% endblock %}
+{% block head %}<script src="{% static 'core/vendor/angular.min.js' %}"></script>{% endblock %}
+{% block content %}
+{# This page is an AngularJS app (static/core/js/finder.js). The verbatim block stops Django from touching Angular's curly-brace expressions. #}
+{% verbatim %}
+<div class="container section" ng-app="finderApp" ng-controller="FinderCtrl as vm" ng-cloak>
+  <h1 class="page-title">Find donors</h1>
+  <p class="text-muted-ink">Pick the patient's blood group to see everyone who can give to them. Contact details stay private until a donor pledges on a request.</p>
+
+  <div class="filters">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="d-for">Patient's blood group</label>
+        <select class="form-select" id="d-for" ng-model="vm.patientGroup"
+                ng-options="g as vm.label(g) for g in vm.groups">
+          <option value="">Any (show everyone)</option>
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="d-city">City</label>
+        <input class="form-control" id="d-city" ng-model="vm.city" placeholder="Any city" list="city-list" autocomplete="off">
+        <datalist id="city-list"><option ng-repeat="c in vm.cities" value="{{ c }}"></option></datalist>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="d-sort">Sort by</label>
+        <select class="form-select" id="d-sort" ng-model="vm.sortKey">
+          <option value="best">Best match</option>
+          <option value="name">Name</option>
+          <option value="donations">Most donations</option>
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="d-ready" ng-model="vm.readyOnly">
+          <label class="form-check-label" for="d-ready">Only donors who can give today</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="result-count" aria-live="polite">
+    <span ng-if="vm.loading">Loading donors…</span>
+    <span ng-if="!vm.loading">{{ vm.results().length }} of {{ vm.donors.length }} donors
+      <span ng-if="vm.patientGroup"> can give to a {{ vm.label(vm.patientGroup) }} patient</span><span ng-if="vm.city"> in "{{ vm.city }}"</span></span>
+  </p>
+  <p class="form-error" ng-if="vm.error">{{ vm.error }}</p>
+
+  <div class="donor-grid">
+    <div class="donor-tile" ng-repeat="d in vm.results() track by d.id" ng-class="{ 'is-muted': !d.eligible || !d.available }">
+      <span class="group-tag">{{ d.label }}</span>
+      <div class="donor-tile-body">
+        <strong>{{ d.name }}</strong>
+        <span class="text-muted-ink">{{ d.city }}</span>
+        <span class="tile-state" ng-if="d.eligible && d.available">Can give today</span>
+        <span class="tile-state tile-state-wait" ng-if="!d.eligible">Eligible {{ d.next_eligible | date:'d MMM' }}</span>
+        <span class="tile-state tile-state-wait" ng-if="d.eligible && !d.available">Not available</span>
+        <span class="tile-extra"><span ng-if="d.verified">Verified</span><span ng-if="d.verified && d.donations">, </span><span ng-if="d.donations">{{ d.donations }} donation{{ d.donations > 1 ? 's' : '' }}</span></span>
+      </div>
+    </div>
+  </div>
+  <p class="empty" ng-if="!vm.loading && vm.results().length === 0">No donors match. Try clearing the city or unticking "can give today".</p>
+</div>
+{% endverbatim %}
+{% endblock %}
+{% block scripts %}<script src="{% static 'core/js/finder.js' %}"></script>{% endblock %}

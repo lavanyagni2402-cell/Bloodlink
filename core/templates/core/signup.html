@@ -1,0 +1,44 @@
+{% extends "core/base.html" %}
+{% block title %}Register as a donor{% endblock %}
+{% block content %}
+<div class="container narrow section">
+  <h1 class="page-title">Register as a donor</h1>
+  <p class="lead">It takes two minutes. Your phone number is only shown to a family after you choose to help them.</p>
+
+  <form method="post" novalidate data-validate class="form-card">
+    {% csrf_token %}
+    {% if user_form.non_field_errors or donor_form.non_field_errors %}
+      <div class="alert alert-danger">{{ user_form.non_field_errors }}{{ donor_form.non_field_errors }}</div>
+    {% endif %}
+
+    <fieldset>
+      <legend>Your account</legend>
+      <div class="row">
+        {% include "core/_field.html" with field=user_form.username wrap="col-md-6" %}
+        {% include "core/_field.html" with field=user_form.email wrap="col-md-6" %}
+        {% include "core/_field.html" with field=user_form.password1 wrap="col-md-6" %}
+        {% include "core/_field.html" with field=user_form.password2 wrap="col-md-6" %}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>About you</legend>
+      <div class="row">
+        {% include "core/_field.html" with field=donor_form.full_name wrap="col-md-8" %}
+        {% include "core/_field.html" with field=donor_form.blood_group wrap="col-md-4" %}
+        {% include "core/_field.html" with field=donor_form.gender wrap="col-md-4" %}
+        {% include "core/_field.html" with field=donor_form.date_of_birth wrap="col-md-4" %}
+        {% include "core/_field.html" with field=donor_form.weight_kg wrap="col-md-4" %}
+        {% include "core/_field.html" with field=donor_form.phone wrap="col-md-6" %}
+        {% include "core/_field.html" with field=donor_form.city wrap="col-md-6" %}
+        {% include "core/_field.html" with field=donor_form.last_donation wrap="col-md-6" %}
+        {% include "core/_field.html" with field=donor_form.is_available wrap="col-md-6 align-self-end" %}
+      </div>
+    </fieldset>
+
+    <p class="eligibility-preview" id="eligibility-preview" aria-live="polite"></p>
+    <button class="btn btn-blood btn-lg" type="submit">Create donor account</button>
+    <p class="mt-3 mb-0">Already registered? <a href="{% url 'login' %}">Log in</a></p>
+  </form>
+</div>
+{% endblock %}

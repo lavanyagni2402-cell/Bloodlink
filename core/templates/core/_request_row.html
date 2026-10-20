@@ -1,0 +1,14 @@
+<a class="req-row urg-{{ r.urgency }} status-{{ r.status }}" href="{{ r.get_absolute_url }}">
+  <span class="group-tag">{{ r.get_blood_group_display }}</span>
+  <span class="req-main">
+    <span class="req-title">{{ r.patient_name }} needs {{ r.units_needed }} unit{{ r.units_needed|pluralize }}</span>
+    <span class="req-meta">{{ r.hospital }}, {{ r.city }}. Needed by {{ r.needed_by|date:"j M" }}</span>
+    <span class="progress req-progress" role="progressbar" aria-label="Units pledged" aria-valuenow="{{ r.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+      <span class="progress-bar" style="width: {{ r.progress_percent }}%"></span>
+    </span>
+  </span>
+  <span class="req-side">
+    <span class="urg-badge">{{ r.get_urgency_display }}</span>
+    <span class="req-pledged">{{ r.units_pledged }} of {{ r.units_needed }} pledged</span>
+  </span>
+</a>

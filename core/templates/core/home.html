@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+{% block title %}Find blood donors fast{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-center">
+      <div class="col-lg-6">
+        <h1 class="hero-title">Find a donor who can reach the hospital today.</h1>
+        <p class="lead hero-lead">Post what the patient needs. BloodLink finds eligible donors with a compatible blood group, ranks them by who is closest and most reliable, and alerts everyone online.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a class="btn btn-blood btn-lg" href="{% url 'request_create' %}">Request blood</a>
+          <a class="btn btn-outline-ink btn-lg" href="{% url 'signup' %}">Register as a donor</a>
+        </div>
+        <p class="live-line mt-4" id="live-stats" aria-live="polite">Loading live numbers…</p>
+      </div>
+
+      <div class="col-lg-6">
+        <!-- Interactive compatibility chart: plain JavaScript + DOM (static/core/js/main.js) -->
+        <div class="compat" id="compat">
+          <h2 class="compat-title">Who can you help?</h2>
+          <p class="compat-help">Pick your blood group.</p>
+          <div class="compat-picker" id="compat-picker" role="group" aria-label="Your blood group"></div>
+          <div class="compat-result" id="compat-result">
+            <p class="mb-2"><strong>You can give to</strong></p>
+            <div class="compat-grid" id="compat-give"></div>
+            <p class="mb-2 mt-3"><strong>You can receive from</strong></p>
+            <div class="compat-grid" id="compat-receive"></div>
+            <p class="compat-note" id="compat-note"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="d-flex justify-content-between align-items-baseline mb-3 flex-wrap gap-2">
+    <h2 class="section-title mb-0">Needed now</h2>
+    <a href="{% url 'request_list' %}">See all open requests</a>
+  </div>
+  <div class="req-list">
+    {% for r in urgent %}{% include "core/_request_row.html" %}
+    {% empty %}<p class="empty">No open requests right now. That's good news.</p>{% endfor %}
+  </div>
+</section>
+
+<section class="container section">
+  <div class="row g-4 g-lg-5">
+    <div class="col-lg-5">
+      <h2 class="section-title">How a request gets filled</h2>
+      <ol class="steps">
+        <li><strong>A family posts a request</strong> with the blood group, units, hospital and how urgent it is.</li>
+        <li><strong>BloodLink matches donors</strong> who are compatible, available and medically eligible today.</li>
+        <li><strong>Donors pledge</strong> with one tap and see the family's number to coordinate.</li>
+        <li><strong>The family marks who donated</strong>, which resets that donor's 90-day clock.</li>
+      </ol>
+    </div>
+    <div class="col-lg-7">
+      <h2 class="section-title">Registered donors by blood group</h2>
+      <p class="text-muted-ink">O− can give to anyone, so it runs out first.</p>
+      <div class="group-bars" id="group-bars" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

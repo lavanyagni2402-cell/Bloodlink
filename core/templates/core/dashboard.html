@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+{% block title %}My dashboard{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1 class="page-title">Hi {% if donor %}{{ donor.full_name.split.0 }}{% else %}{{ user.username }}{% endif %}</h1>
+
+  <div class="row g-4 g-lg-5">
+    <div class="col-lg-4">
+      {% if donor %}
+      <div class="donor-card">
+        <div class="d-flex gap-3 align-items-center">
+          <span class="group-tag group-tag-xl">{{ donor.get_blood_group_display }}</span>
+          <div>
+            <strong>{{ donor.full_name }}</strong><br>
+            <span class="text-muted-ink">{{ donor.city }}, age {{ donor.age }}</span>
+            {% if donor.is_verified %}<br><span class="verified">Verified donor</span>{% endif %}
+          </div>
+        </div>
+        <hr>
+        {% if donor.is_eligible %}
+          <p class="elig elig-yes">You can donate today.</p>
+        {% else %}
+          <p class="elig elig-no">Next eligible on {{ donor.next_eligible_date|date:"j F Y" }}.</p>
+        {% endif %}
+        <p class="mb-2">Donations through BloodLink: <strong>{{ donor.donations_count }}</strong></p>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="avail-toggle" {% if donor.is_available %}checked{% endif %} data-url="{% url 'api_toggle_availability' %}">
+          <label class="form-check-label" for="avail-toggle" id="avail-label">{% if donor.is_available %}Families can find me{% else %}Hidden from matching{% endif %}</label>
+        </div>
+        <a class="btn btn-outline-ink btn-sm mt-3" href="{% url 'profile_edit' %}">Edit profile</a>
+      </div>
+      {% else %}
+      <div class="donor-card">
+        <p>You haven't added donor details yet.</p>
+        <a class="btn btn-blood" href="{% url 'profile_edit' %}">Create donor profile</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-8">
+      {% if donor %}
+      <h2 class="section-title">Requests you can help with</h2>
+      <div class="req-list mb-5">
+        {% for r in can_help %}{% include "core/_request_row.html" %}
+        {% empty %}<p class="empty">Nothing open for {{ donor.get_blood_group_display }} donors right now. We'll alert you when something comes up.</p>{% endfor %}
+      </div>
+
+      <h2 class="section-title">Your pledges</h2>
+      <div class="mb-5">
+        {% if my_responses %}
+        <table class="table align-middle">
+          <thead><tr><th>Request</th><th>Hospital</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for resp in my_responses %}
+            <tr>
+              <td><a href="{{ resp.request.get_absolute_url }}">{{ resp.request.get_blood_group_display }} for {{ resp.request.patient_name }}</a></td>
+              <td>{{ resp.request.hospital }}, {{ resp.request.city }}</td>
+              <td><span class="status-badge status-{{ resp.status }}">{{ resp.get_status_display }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<p class="empty">You haven't pledged yet. When you do, it shows up here.</p>{% endif %}
+      </div>
+      {% endif %}
+
+      <h2 class="section-title">Your requests</h2>
+      {% if my_requests %}
+      <table class="table align-middle">
+        <thead><tr><th>Request</th><th>Needed by</th><th>Pledged</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for r in my_requests %}
+          <tr>
+            <td><a href="{{ r.get_absolute_url }}">{{ r.get_blood_group_display }} × {{ r.units_needed }} for {{ r.patient_name }}</a></td>
+            <td>{{ r.needed_by|date:"j M" }}</td>
+            <td>{{ r.units_pledged }} of {{ r.units_needed }}</td>
+            <td><span class="status-badge status-{{ r.status }}">{{ r.get_status_display }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}<p class="empty">You haven't asked for blood. <a href="{% url 'request_create' %}">Post a request</a> if someone needs it.</p>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+// Availability switch: send a POST request with jQuery AJAX and update the label
+$("#avail-toggle").on("change", function () {
+  $.ajax({
+    url: $("#avail-toggle").data("url"),
+    method: "POST",
+    headers: { "X-CSRFToken": getCookie("csrftoken") },
+    success: function (response) {
+      if (response.available) {
+        $("#avail-label").text("Families can find me");
+      } else {
+        $("#avail-label").text("Hidden from matching");
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

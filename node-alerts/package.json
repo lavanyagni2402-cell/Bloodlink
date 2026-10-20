@@ -1,0 +1,10 @@
+{
+  "name": "bloodlink-alerts",
+  "version": "1.0.0",
+  "description": "Live alert service for BloodLink (Server-Sent Events). Uses only built-in Node modules.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT"
+}

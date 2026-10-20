@@ -1,0 +1,24 @@
+{% extends "core/base.html" %}
+{% block title %}{% if is_new %}Create donor profile{% else %}Edit profile{% endif %}{% endblock %}
+{% block content %}
+<div class="container narrow section">
+  <h1 class="page-title">{% if is_new %}Create your donor profile{% else %}Edit your donor profile{% endif %}</h1>
+  <form method="post" novalidate data-validate class="form-card">
+    {% csrf_token %}
+    <div class="row">
+      {% include "core/_field.html" with field=form.full_name wrap="col-md-8" %}
+      {% include "core/_field.html" with field=form.blood_group wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.gender wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.date_of_birth wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.weight_kg wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.phone wrap="col-md-6" %}
+      {% include "core/_field.html" with field=form.city wrap="col-md-6" %}
+      {% include "core/_field.html" with field=form.last_donation wrap="col-md-6" %}
+      {% include "core/_field.html" with field=form.is_available wrap="col-md-6 align-self-end" %}
+    </div>
+    <p class="eligibility-preview" id="eligibility-preview" aria-live="polite"></p>
+    <button class="btn btn-blood" type="submit">Save profile</button>
+    <a class="btn btn-link" href="{% url 'dashboard' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

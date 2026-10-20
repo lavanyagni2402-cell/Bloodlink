@@ -1,0 +1,171 @@
+{% extends "core/base.html" %}
+{% load humanize %}
+{% block title %}{{ br.get_blood_group_display }} for {{ br.patient_name }}{% endblock %}
+{% block content %}
+<div class="container section">
+  <p><a href="{% url 'request_list' %}">Back to all requests</a></p>
+
+  <div class="row g-4 g-lg-5">
+    <div class="col-lg-7">
+      <div class="detail-head urg-{{ br.urgency }}">
+        <span class="group-tag group-tag-xl">{{ br.get_blood_group_display }}</span>
+        <div>
+          <h1 class="page-title mb-1">{{ br.patient_name }} needs {{ br.units_needed }} unit{{ br.units_needed|pluralize }}</h1>
+          <p class="mb-0"><span class="urg-badge">{{ br.get_urgency_display }}</span>
+            {% if br.status != 'open' %}<span class="status-badge status-{{ br.status }}">{{ br.get_status_display }}</span>{% endif %}</p>
+        </div>
+      </div>
+
+      <dl class="facts">
+        <div><dt>Hospital</dt><dd>{{ br.hospital }}, {{ br.city }}</dd></div>
+        <div><dt>Needed by</dt><dd>{{ br.needed_by|date:"l, j F" }}</dd></div>
+        <div><dt>Posted</dt><dd>{{ br.created_at|naturaltime }}</dd></div>
+        <div><dt>Donors who can give</dt><dd>{{ compatible_groups }}</dd></div>
+      </dl>
+      {% if br.note %}<p class="note">{{ br.note }}</p>{% endif %}
+
+      <div class="mt-4">
+        <div class="d-flex justify-content-between"><strong id="pledge-text">{{ br.units_pledged }} of {{ br.units_needed }} units pledged</strong><span class="text-muted-ink">{{ match_count }} eligible donor{{ match_count|pluralize }} not yet responded</span></div>
+        <div class="progress req-progress req-progress-lg mt-2" role="progressbar" aria-label="Units pledged" aria-valuenow="{{ br.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar" id="pledge-bar" style="width: {{ br.progress_percent }}%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What can this visitor do? -->
+    <div class="col-lg-5">
+      <div class="action-box" id="action-box">
+        {% if br.status != 'open' %}
+          <h2 class="box-title">This request is {{ br.get_status_display|lower }}</h2>
+          <p class="mb-0">Thank you to everyone who responded.</p>
+        {% elif is_owner %}
+          <h2 class="box-title">Your request</h2>
+          <p>Mark it fulfilled once the patient has enough blood, so donors stop calling.</p>
+          <form method="post" action="{% url 'request_set_status' br.pk %}" class="d-flex gap-2 flex-wrap">{% csrf_token %}
+            <button class="btn btn-success-ink" name="status" value="fulfilled">Mark as fulfilled</button>
+            <button class="btn btn-outline-ink" name="status" value="closed">Close request</button>
+          </form>
+        {% elif not user.is_authenticated %}
+          <h2 class="box-title">Can you donate?</h2>
+          <p>Log in as a donor to pledge. It shares your first name with the family and shows you their number.</p>
+          <a class="btn btn-blood" href="{% url 'login' %}?next={{ request.path }}">Log in to pledge</a>
+          <a class="btn btn-link" href="{% url 'signup' %}">Register as a donor</a>
+        {% elif not donor %}
+          <h2 class="box-title">Add your donor details</h2>
+          <p>We need your blood group and a few details before you can pledge.</p>
+          <a class="btn btn-blood" href="{% url 'profile_edit' %}">Create donor profile</a>
+        {% elif my_response %}
+          <h2 class="box-title">You pledged to donate</h2>
+          <p>Call the family to arrange a time: <a class="phone" href="tel:{{ br.contact_phone }}">{{ br.contact_phone }}</a></p>
+          <p class="mb-0">Status: {{ my_response.get_status_display }}</p>
+        {% elif not can_donate %}
+          <h2 class="box-title">Your group can't be used here</h2>
+          <p class="mb-0">{{ donor.get_blood_group_display }} blood can't be given to a {{ br.get_blood_group_display }} patient. Sharing this page with friends who are {{ compatible_groups }} still helps.</p>
+        {% elif not donor.is_eligible %}
+          <h2 class="box-title">You can't donate yet</h2>
+          <p class="mb-0">You'll be eligible again on {{ donor.next_eligible_date|date:"j F Y" }}. Share this page with friends who are {{ compatible_groups }}.</p>
+        {% else %}
+          <h2 class="box-title">You can donate for this patient</h2>
+          <form id="pledge-form" data-url="{% url 'api_respond' br.pk %}">
+            {% csrf_token %}
+            <label class="form-label" for="pledge-msg">Message for the family (optional)</label>
+            <input class="form-control mb-3" id="pledge-msg" maxlength="200" placeholder="e.g. I can reach by 4 pm">
+            <button class="btn btn-blood btn-lg w-100" type="submit">I can donate</button>
+            <p class="form-error mt-2 mb-0" id="pledge-error" role="alert"></p>
+          </form>
+          <div id="pledge-done" class="pledge-done" hidden>
+            <p class="mb-1"><strong id="pledge-done-msg"></strong></p>
+            <p class="mb-0">Family's number: <a class="phone" id="pledge-phone" href="#"></a></p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if is_owner or user.is_staff %}
+  <div class="row g-4 g-lg-5 mt-1">
+    <div class="col-lg-7">
+      <h2 class="section-title">Donors who pledged</h2>
+      {% if responses %}
+      <!-- HTML table of everyone who pledged -->
+      <div class="table-responsive">
+        <table class="table pledge-table align-middle">
+          <thead>
+            <tr><th>Donor</th><th>Phone</th><th>Message</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for resp in responses %}
+            <tr>
+              <td><strong>{{ resp.donor.full_name }}</strong> <span class="group-tag group-tag-sm">{{ resp.donor.get_blood_group_display }}</span><br><span class="text-muted-ink">{{ resp.donor.city }}</span></td>
+              <td><a class="phone" href="tel:{{ resp.donor.phone }}">{{ resp.donor.phone }}</a></td>
+              <td>{{ resp.message|default:"-" }}</td>
+              <td>
+                {% if resp.status == 'pledged' and br.status == 'open' %}
+                <form method="post" action="{% url 'response_set_status' resp.pk %}" class="d-flex gap-1 flex-wrap">{% csrf_token %}
+                  <button class="btn btn-sm btn-success-ink" name="status" value="confirmed">Donated</button>
+                  <button class="btn btn-sm btn-outline-ink" name="status" value="declined">Not needed</button>
+                </form>
+                {% else %}<span class="status-badge status-{{ resp.status }}">{{ resp.get_status_display }}</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="empty">No pledges yet. Matching donors were alerted when you posted.</p>
+      {% endif %}
+    </div>
+    {% if matches %}
+    <div class="col-lg-5">
+      <h2 class="section-title">Best-matched donors</h2>
+      <p class="text-muted-ink">Ranked by blood group, distance, verification and past donations. Their numbers appear once they pledge.</p>
+      {% for m in matches %}
+        <div class="match-row">
+          <span class="score" title="Match score out of 100">{{ m.score }}</span>
+          <div>
+            <strong>{{ m.donor.full_name }}</strong> <span class="group-tag group-tag-sm">{{ m.donor.get_blood_group_display }}</span>
+            <br><span class="text-muted-ink">{{ m.donor.city }}. {{ m.reasons|join:", " }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+// "I can donate" button: send a POST request with jQuery AJAX (no page reload)
+$("#pledge-form").on("submit", function (event) {
+  event.preventDefault();   // stop the normal form submit
+
+  $.ajax({
+    url: $("#pledge-form").data("url"),
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ message: $("#pledge-msg").val() }),
+    headers: { "X-CSRFToken": getCookie("csrftoken") },
+
+    success: function (response) {
+      // hide the form and show the family's phone number
+      $("#pledge-form").hide();
+      $("#pledge-done-msg").text(response.message);
+      $("#pledge-phone").text(response.contact_phone);
+      $("#pledge-phone").attr("href", "tel:" + response.contact_phone);
+      $("#pledge-done").removeAttr("hidden");
+
+      // update the progress bar
+      var r = response.request;
+      $("#pledge-text").text(r.units_pledged + " of " + r.units_needed + " units pledged");
+      $("#pledge-bar").css("width", r.progress + "%");
+    },
+
+    error: function (xhr) {
+      $("#pledge-error").text(xhr.responseJSON.error);
+    }
+  });
+});
+</script>
+{% endblock %}

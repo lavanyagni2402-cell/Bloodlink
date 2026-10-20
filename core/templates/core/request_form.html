@@ -1,0 +1,24 @@
+{% extends "core/base.html" %}
+{% block title %}Request blood{% endblock %}
+{% block content %}
+<div class="container narrow section">
+  <h1 class="page-title">Request blood</h1>
+  <p class="lead">Matching donors will see this straight away. Use a number someone will actually answer.</p>
+  <form method="post" novalidate data-validate class="form-card">
+    {% csrf_token %}
+    <div class="row">
+      {% include "core/_field.html" with field=form.patient_name wrap="col-md-8" %}
+      {% include "core/_field.html" with field=form.blood_group wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.units_needed wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.urgency wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.needed_by wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.hospital wrap="col-md-8" %}
+      {% include "core/_field.html" with field=form.city wrap="col-md-4" %}
+      {% include "core/_field.html" with field=form.contact_phone wrap="col-md-6" %}
+      {% include "core/_field.html" with field=form.note wrap="col-12" %}
+    </div>
+    <p class="compat-inline" id="request-compat" aria-live="polite"></p>
+    <button class="btn btn-blood btn-lg" type="submit">Post request and alert donors</button>
+  </form>
+</div>
+{% endblock %}

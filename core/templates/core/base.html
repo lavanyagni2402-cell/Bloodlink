@@ -1,0 +1,85 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}BloodLink{% endblock %} | BloodLink</title>
+  <meta name="description" content="BloodLink connects people who urgently need blood with eligible donors nearby.">
+  <link rel="icon" href="{% static 'core/img/logo.svg' %}">
+  <!-- Bootstrap 5 (saved in static/core/vendor so it works without internet) -->
+  <link href="{% static 'core/vendor/bootstrap.min.css' %}" rel="stylesheet">
+  <!-- our own external stylesheet -->
+  <link href="{% static 'core/css/style.css' %}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<a class="visually-hidden-focusable skip-link" href="#main">Skip to content</a>
+
+<nav class="navbar navbar-expand-lg site-nav">
+  <div class="container">
+    <a class="navbar-brand brand" href="{% url 'home' %}">
+      <img src="{% static 'core/img/logo.svg' %}" alt="BloodLink logo" width="20" height="27">
+      BloodLink
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Open menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'request_list' %}active{% endif %}" href="{% url 'request_list' %}">Open requests</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'find_donors' %}active{% endif %}" href="{% url 'find_donors' %}">Find donors</a></li>
+        <li class="nav-item"><a class="nav-link" href="/cgi-bin/eligibility.py" title="Python CGI page (runs on port 8001)" id="cgi-link">Am I eligible?</a></li>
+      </ul>
+      <ul class="navbar-nav align-items-lg-center gap-lg-2">
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">My dashboard</a></li>
+          {% if user.is_staff %}<li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>{% endif %}
+          <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+              <button class="btn btn-link nav-link" type="submit">Log out</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Log in</a></li>
+          <li class="nav-item"><a class="btn btn-outline-blood btn-sm" href="{% url 'signup' %}">Register as donor</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="btn btn-blood btn-sm" href="{% url 'request_create' %}">Request blood</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+  {% if messages %}
+  <div class="container mt-3">
+    {% for m in messages %}
+      <div class="alert alert-{% if m.tags == 'error' %}danger{% else %}{{ m.tags }}{% endif %} alert-dismissible fade show" role="status">
+        {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
+    <p class="mb-0">BloodLink is a student project for AIM3140 Web Technologies. In a real emergency, also call your nearest blood bank or 104.</p>
+    <p class="mb-0">
+      <!-- external link (opens in a new tab) and email link -->
+      <a href="https://www.who.int" target="_blank" rel="noopener">World Health Organization</a>
+      &nbsp;|&nbsp;
+      <a href="mailto:help@bloodlink.example?subject=BloodLink%20help">Email us</a>
+    </p>
+  </div>
+</footer>
+
+<!-- Live alerts from the Node.js service appear here -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts" aria-live="polite"></div>
+
+<script src="{% static 'core/vendor/jquery.min.js' %}"></script>
+<script src="{% static 'core/vendor/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'core/js/main.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

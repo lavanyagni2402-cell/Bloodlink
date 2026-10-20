@@ -1,0 +1,34 @@
+[
+  {
+    "username": "camp_tanya",
+    "full_name": "Tanya Bhardwaj",
+    "email": "tanya@example.com",
+    "blood_group": "O-",
+    "gender": "F",
+    "date_of_birth": "2003-08-21",
+    "weight_kg": 54,
+    "phone": "9123456780",
+    "city": "jaipur"
+  },
+  {
+    "username": "camp_imran",
+    "full_name": "Imran Qureshi",
+    "blood_group": "B-",
+    "gender": "M",
+    "date_of_birth": "1995-02-02",
+    "weight_kg": 71,
+    "phone": "8123456781",
+    "city": "Delhi",
+    "last_donation": "2026-05-10"
+  },
+  {
+    "username": "camp_sara",
+    "full_name": "Sara Thomas",
+    "blood_group": "AB-",
+    "gender": "F",
+    "date_of_birth": "1999-11-30",
+    "weight_kg": 60,
+    "phone": "7123456782",
+    "city": "Bengaluru"
+  }
+]

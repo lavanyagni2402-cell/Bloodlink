@@ -1,0 +1,51 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Open requests{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
+    <h1 class="page-title mb-0">Open requests</h1>
+    <a class="btn btn-blood" href="{% url 'request_create' %}">Request blood</a>
+  </div>
+  <p class="text-muted-ink">This list updates by itself. Critical requests are always at the top.</p>
+
+  <!-- Filters: changing any of these calls /api/requests/ with jQuery AJAX (no page reload) -->
+  <form class="filters" id="filters" role="search" onsubmit="return false">
+    <div class="row g-2 align-items-end">
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="f-city">City</label>
+        <input class="form-control" id="f-city" name="city" placeholder="Any city" autocomplete="off">
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="f-group">Blood group needed</label>
+        <select class="form-select" id="f-group" name="group">
+          <option value="">Any group</option>
+          {% if user.is_authenticated and user.donor %}<option value="mine">Ones I can donate to ({{ user.donor.get_blood_group_display }})</option>{% endif %}
+          {% for value, label in groups %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="f-urgency">Urgency</label>
+        <select class="form-select" id="f-urgency" name="urgency">
+          <option value="">Any</option>
+          <option value="critical">Critical</option>
+          <option value="urgent">Urgent</option>
+          <option value="normal">Planned</option>
+        </select>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label" for="f-status">Status</label>
+        <select class="form-select" id="f-status" name="status">
+          <option value="open">Still open</option>
+          <option value="fulfilled">Fulfilled</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+    </div>
+  </form>
+
+  <p class="result-count" id="result-count" aria-live="polite"></p>
+  <div class="req-list" id="req-list"><p class="empty">Loading requests…</p></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'core/js/requests.js' %}"></script>{% endblock %}

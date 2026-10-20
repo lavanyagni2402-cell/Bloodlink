@@ -1,0 +1,25 @@
+{% extends "core/base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="container narrow-sm section">
+  <h1 class="page-title">Log in</h1>
+  <form method="post" class="form-card" novalidate data-validate>
+    {% csrf_token %}
+    {% if form.errors %}<div class="alert alert-danger">That username and password don't match. Check both and try again.</div>{% endif %}
+    <div class="mb-3">
+      <label class="form-label" for="id_username">Username</label>
+      <input class="form-control" id="id_username" name="username" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
+      <div class="invalid-feedback d-block js-error" data-for="username"></div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="id_password">Password</label>
+      <input class="form-control" id="id_password" name="password" type="password" autocomplete="current-password" required>
+      <div class="invalid-feedback d-block js-error" data-for="password"></div>
+    </div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-blood w-100" type="submit">Log in</button>
+    <p class="form-text mt-3 mb-0">Demo account: <code>demo</code> / <code>demo1234</code></p>
+  </form>
+  <p class="mt-3">New here? <a href="{% url 'signup' %}">Register as a donor</a></p>
+</div>
+{% endblock %}
